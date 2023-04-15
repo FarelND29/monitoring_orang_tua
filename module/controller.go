@@ -30,7 +30,7 @@ func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (inser
 
 
 
-func InsertOrangTua(db *mongo.Database, col string ,nama_ot string,phone_number string, anak model.Mahasiswa) (InsertedID interface{}) {
+func InsertOrangTua(db *mongo.Database, col string, nama_ot string, phone_number string, anak model.Mahasiswa) (InsertedID interface{}) {
 	var orangtua model.OrangTua
 	orangtua.Nama_OT = nama_ot
 	orangtua.Phone_number = phone_number
@@ -38,12 +38,121 @@ func InsertOrangTua(db *mongo.Database, col string ,nama_ot string,phone_number 
 	return InsertOneDoc(db, col, orangtua)
 }
 
-func GetOrangTuaFromNamaMahasiswa(db *mongo.Database, col string, nama string) (nomor model.OrangTua) {
+func InsertMahasiswa(db *mongo.Database, col string, nama string, npm int, phone_number string) (InsertedID interface{}) {
+	var mahasiswa model.Mahasiswa
+	mahasiswa.Nama = nama
+	mahasiswa.NPM = npm
+	mahasiswa.Phone_number = phone_number
+	return InsertOneDoc(db, col, mahasiswa)
+}
+
+func InsertTema(db *mongo.Database, col string, nama_tema string) (InsertedID interface{}) {
+	var tema model.Tema
+	tema.Nama_Tema = nama_tema
+	return InsertOneDoc(db, col, tema)
+}
+
+func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, tanggal string, hari string) (InsertedID interface{}) {
+	var monitoring model.Monitoring
+	monitoring.OrangTua = orang_tua
+	monitoring.Tema = tema
+	monitoring.Tanggal = tanggal
+	monitoring.Hari = hari
+	return InsertOneDoc(db, col, monitoring)
+}
+
+func GetOrangTuaFromNamaMahasiswa(db *mongo.Database, col string, nama string) (ortu model.OrangTua) {
 	orang_tua := db.Collection(col)
 	filter := bson.M{"anak.nama": nama}
-	err := orang_tua.FindOne(context.TODO(), filter).Decode(&nomor)
+	err := orang_tua.FindOne(context.TODO(), filter).Decode(&ortu)
 	if err != nil {
-		fmt.Printf("getTemaFromTanggal: %v\n", err)
+		fmt.Printf("GetOrangTuaFromNamaMahasiswa: %v\n", err)
 	}
-	return nomor
+	return ortu
+}
+
+func GetMahasiswaFromNpm(db *mongo.Database, col string, npm int) (mhs model.Mahasiswa) {
+	mahasiswa := db.Collection(col)
+	filter := bson.M{"npm": npm}
+	err := mahasiswa.FindOne(context.TODO(), filter).Decode(&mhs)
+	if err != nil {
+		fmt.Printf("GetMahasiswaFromNpm: %v\n", err)
+	}
+	return mhs
+}
+
+func GetTemaFromNamaTema(db *mongo.Database, col string, nama_tema string) (tm model.Tema) {
+	tema := db.Collection(col)
+	filter := bson.M{"nama_tema": nama_tema}
+	err := tema.FindOne(context.TODO(), filter).Decode(&tm)
+	if err != nil {
+		fmt.Printf("GetTemaFromNamaTema: %v\n", err)
+	}
+	return tm
+}
+
+func GetMonitoringFromNamaMahasiswa(db *mongo.Database, col string, nama string) (mntr model.Monitoring) {
+	monitoring := db.Collection(col)
+	filter := bson.M{"ortu.anak.nama": nama}
+	err := monitoring.FindOne(context.TODO(), filter).Decode(&mntr)
+	if err != nil {
+		fmt.Printf("GetMonitoringFromNamaMahasiswa: %v\n", err)
+	}
+	return mntr
+}
+
+func GetAllMonitoring(db *mongo.Database, col string) (data []model.Monitoring) {
+	monitoring := db.Collection(col)
+	filter := bson.M{}
+	cursor, err := monitoring.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println("GetAllMonitoring :", err)
+	}
+	err = cursor.All(context.TODO(), &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return data
+}
+
+func GetAllMahasiswa(db *mongo.Database, col string) (data []model.Mahasiswa) {
+	mahasiswa := db.Collection(col)
+	filter := bson.M{}
+	cursor, err := mahasiswa.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println("GetAllMahasiswa :", err)
+	}
+	err = cursor.All(context.TODO(), &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return data
+}
+
+func GetAllOrangTua(db *mongo.Database, col string) (data []model.OrangTua) {
+	orangtua := db.Collection(col)
+	filter := bson.M{}
+	cursor, err := orangtua.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println("GetAllOrangTua :", err)
+	}
+	err = cursor.All(context.TODO(), &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return data
+}
+
+func GetAllTema(db *mongo.Database, col string) (data []model.Tema) {
+	tema := db.Collection(col)
+	filter := bson.M{}
+	cursor, err := tema.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println("GetAllTema :", err)
+	}
+	err = cursor.All(context.TODO(), &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return data
 }
