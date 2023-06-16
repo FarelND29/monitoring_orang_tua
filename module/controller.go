@@ -15,7 +15,7 @@ var MongoString string = os.Getenv("MONGOSTRING")
 
 var MongoInfo = atdb.DBInfo{
 	DBString: MongoString,
-	DBName:   "farel_db",
+	DBName:   "monitoring_db",
 }
 
 var MongoConn = atdb.MongoConnect(MongoInfo)
@@ -28,7 +28,14 @@ func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (inser
 	return insertResult.InsertedID
 }
 
-
+func InsertMahasiswa(db *mongo.Database, col string, nama string, npm int, jenis_kelamin string, phone_number string) (InsertedID interface{}) {
+	var mahasiswa model.Mahasiswa
+	mahasiswa.Nama = nama
+	mahasiswa.NPM = npm
+	mahasiswa.Jekel = jenis_kelamin
+	mahasiswa.Phone_number = phone_number
+	return InsertOneDoc(db, col, mahasiswa)
+}
 
 func InsertOrangTua(db *mongo.Database, col string, nama_ot string, phone_number string, anak model.Mahasiswa) (InsertedID interface{}) {
 	var orangtua model.OrangTua
@@ -38,12 +45,13 @@ func InsertOrangTua(db *mongo.Database, col string, nama_ot string, phone_number
 	return InsertOneDoc(db, col, orangtua)
 }
 
-func InsertMahasiswa(db *mongo.Database, col string, nama string, npm int, phone_number string) (InsertedID interface{}) {
-	var mahasiswa model.Mahasiswa
-	mahasiswa.Nama = nama
-	mahasiswa.NPM = npm
-	mahasiswa.Phone_number = phone_number
-	return InsertOneDoc(db, col, mahasiswa)
+func InsertDosenWali(db *mongo.Database, col string, nama_dosen string, alamat string, phone_number string, email string) (InsertedID interface{}) {
+	var dosen model.DosenWali
+	dosen.Nama_Dosen = nama_dosen
+	dosen.Alamat = alamat
+	dosen.Phone_number = phone_number
+	dosen.Email = email
+	return InsertOneDoc(db, col, dosen)
 }
 
 func InsertTema(db *mongo.Database, col string, nama_tema string) (InsertedID interface{}) {
@@ -61,6 +69,16 @@ func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, 
 	return InsertOneDoc(db, col, monitoring)
 }
 
+func GetMahasiswaFromNpm(db *mongo.Database, col string, npm int) (mhs model.Mahasiswa) {
+	mahasiswa := db.Collection(col)
+	filter := bson.M{"npm": npm}
+	err := mahasiswa.FindOne(context.TODO(), filter).Decode(&mhs)
+	if err != nil {
+		fmt.Printf("GetMahasiswaFromNpm: %v\n", err)
+	}
+	return mhs
+}
+
 func GetOrangTuaFromNamaMahasiswa(db *mongo.Database, col string, nama string) (ortu model.OrangTua) {
 	orang_tua := db.Collection(col)
 	filter := bson.M{"anak.nama": nama}
@@ -71,14 +89,14 @@ func GetOrangTuaFromNamaMahasiswa(db *mongo.Database, col string, nama string) (
 	return ortu
 }
 
-func GetMahasiswaFromNpm(db *mongo.Database, col string, npm int) (mhs model.Mahasiswa) {
-	mahasiswa := db.Collection(col)
-	filter := bson.M{"npm": npm}
-	err := mahasiswa.FindOne(context.TODO(), filter).Decode(&mhs)
+func GetDosenWaliFromNamaDosen(db *mongo.Database, col string, nama_dosen string) (doswal model.DosenWali) {
+	dosen_wali := db.Collection(col)
+	filter := bson.M{"nama_dosen": nama_dosen}
+	err := dosen_wali.FindOne(context.TODO(), filter).Decode(&doswal)
 	if err != nil {
-		fmt.Printf("GetMahasiswaFromNpm: %v\n", err)
+		fmt.Printf("GetDosenWaliFromNamaDosen: %v\n", err)
 	}
-	return mhs
+	return doswal
 }
 
 func GetTemaFromNamaTema(db *mongo.Database, col string, nama_tema string) (tm model.Tema) {
@@ -135,6 +153,20 @@ func GetAllOrangTua(db *mongo.Database, col string) (data []model.OrangTua) {
 	cursor, err := orangtua.Find(context.TODO(), filter)
 	if err != nil {
 		fmt.Println("GetAllOrangTua :", err)
+	}
+	err = cursor.All(context.TODO(), &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return data
+}
+
+func GetAllDosenWali(db *mongo.Database, col string) (data []model.DosenWali) {
+	dosenwali := db.Collection(col)
+	filter := bson.M{}
+	cursor, err := dosenwali.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println("GetAllDosenWali :", err)
 	}
 	err = cursor.All(context.TODO(), &data)
 	if err != nil {
