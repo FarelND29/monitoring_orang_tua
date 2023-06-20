@@ -60,10 +60,11 @@ func InsertTema(db *mongo.Database, col string, nama_tema string) (InsertedID in
 	return InsertOneDoc(db, col, tema)
 }
 
-func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, tanggal string, hari string) (InsertedID interface{}) {
+func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, dosen model.DosenWali, tanggal string, hari string) (InsertedID interface{}) {
 	var monitoring model.Monitoring
 	monitoring.OrangTua = orang_tua
 	monitoring.Tema = tema
+	monitoring.Dosen = dosen
 	monitoring.Tanggal = tanggal
 	monitoring.Hari = hari
 	return InsertOneDoc(db, col, monitoring)

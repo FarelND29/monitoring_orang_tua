@@ -56,9 +56,15 @@ func TestInsertMonitoring(t *testing.T) {
 	tema := model.Tema{
 		Nama_Tema: "Bahasa Indonesia",
 	}
+	dosen := model.DosenWali{
+		Nama_Dosen:   "Rudi",
+		Alamat:       "jalan kota Raya",
+		Phone_number: "083821157026",
+		Email:        "fatimah.uhuy@gmail.com",
+	}
 	tanggal := "10-12-2000"
 	hari := "Minggu"
-	hasil := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, tanggal, hari)
+	hasil := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
 	fmt.Println(hasil)
 }
 func TestGetMahasiswaFromNpm(t *testing.T) {
