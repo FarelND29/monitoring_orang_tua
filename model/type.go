@@ -8,7 +8,7 @@ type Mahasiswa struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	Nama         string             `bson:"nama,omitempty" json:"nama,omitempty"`
 	NPM          int                `bson:"npm,omitempty" json:"npm,omitempty"`
-	Jekel        string             `bson:"Jekel,omitempty" json:"jekel,omitempty"`
+	Jekel        string             `bson:"jekel,omitempty" json:"jekel,omitempty"`
 	Phone_number string             `bson:"phone_number,omitempty" json:"phone_number,omitempty"`
 }
 
