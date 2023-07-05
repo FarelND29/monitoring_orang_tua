@@ -80,7 +80,7 @@ func InsertTema(db *mongo.Database, col string, nama_tema string) (InsertedID in
  */
 func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, dosen model.DosenWali, tanggal string, hari string) (insertedID primitive.ObjectID, err error) {
 	monitoring := bson.M{
-		"orangtua":    	orang_tua,
+		"ortu":    		orang_tua,
 		"tema":     	tema,
 		"dosen":     	dosen,
 		"tanggal": 		tanggal,
