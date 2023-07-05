@@ -8,6 +8,7 @@ import (
 	"github.com/FarelND29/monitoring_orang_tua/model"
 	"github.com/aiteung/atdb"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -60,15 +61,23 @@ func InsertTema(db *mongo.Database, col string, nama_tema string) (InsertedID in
 	return InsertOneDoc(db, col, tema)
 }
 
-func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, dosen model.DosenWali, tanggal string, hari string) (InsertedID interface{}) {
-	var monitoring model.Monitoring
-	monitoring.OrangTua = orang_tua
-	monitoring.Tema = tema
-	monitoring.Dosen = dosen
-	monitoring.Tanggal = tanggal
-	monitoring.Hari = hari
-	return InsertOneDoc(db, col, monitoring)
+func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, dosen model.DosenWali, tanggal string, hari string) (insertedID primitive.ObjectID, err error) {
+	monitoring := bson.M{
+		"orangtua":    	orang_tua,
+		"tema":     	tema,
+		"dosen":     	dosen,
+		"tanggal": 		tanggal,
+		"hari":     	hari,
+	}
+	result, err := db.Collection(col).InsertOne(context.Background(), monitoring)
+	if err != nil {
+		fmt.Printf("InsertMonitoring: %v\n", err)
+		return
+	}
+	insertedID = result.InsertedID.(primitive.ObjectID)
+	return insertedID, nil
 }
+
 
 func GetMahasiswaFromNpm(db *mongo.Database, col string, npm int) (mhs model.Mahasiswa) {
 	mahasiswa := db.Collection(col)

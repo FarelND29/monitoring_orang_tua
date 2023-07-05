@@ -50,6 +50,7 @@ func TestInsertMonitoring(t *testing.T) {
 		Anak: model.Mahasiswa{
 			Nama:         "Rio Riyanto",
 			NPM:          1214015,
+			Jekel: 		"laki-laki",
 			Phone_number: "083821132343",
 		},
 	}
@@ -64,9 +65,43 @@ func TestInsertMonitoring(t *testing.T) {
 	}
 	tanggal := "10-12-2000"
 	hari := "Minggu"
-	hasil := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
-	fmt.Println(hasil)
+	insertedID, err := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
+	if err != nil {
+		t.Errorf("Error inserting data: %v", err)
+	}
+	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
 }
+
+/* func TestInsertMonitoring(t *testing.T) {
+	var orang_tua = model.OrangTua{
+			Nama_OT:      		"Haryanto Subathon",
+			Phone_number: 		"088821151212",
+			Anak: model.Mahasiswa{
+				Nama:         	"Rio Riyanto",
+				NPM:          	1214015,
+				Jekel: 			"laki-laki",	
+				Phone_number: 	"083821132343",
+			},
+	tema := model.Tema{
+			Nama_Tema: "Etika Manajemen",
+			}
+	var dosen 	= model.DosenWali{
+				Nama_Dosen:   "Munaroh Maija",
+				Alamat:       "jalan Macan",
+				Phone_number: "08382114428",
+				Email:        "munaroh24@gmail.com",
+			}
+
+			tanggal := "10-12-2000"
+			hari := "Minggu"
+	}
+	insertedID, err := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
+	if err != nil {
+		t.Errorf("Error inserting data: %v", err)
+	}
+	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
+} */
+
 func TestGetMahasiswaFromNpm(t *testing.T) {
 	npm := 1214013
 	data := module.GetMahasiswaFromNpm(module.MongoConn, "mahasiswa", npm)
