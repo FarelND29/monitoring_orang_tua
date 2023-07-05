@@ -9,62 +9,63 @@ import (
 )
 
 func TestInsertMahasiswa(t *testing.T) {
-	nama := "Rio Riyanto"
-	npm := 1214015
-	jenis_kelamin := "laki-laki"
-	phone_number := "083821132343"
+	nama := "Mamas Racing"
+	npm := 1214090
+	jenis_kelamin := "perempuan"
+	phone_number := "08382098789"
 	hasil := module.InsertMahasiswa(module.MongoConn, "mahasiswa", nama, npm, jenis_kelamin, phone_number)
 	fmt.Println(hasil)
 }
 
 func TestInsertOrangTua(t *testing.T) {
-	nama_ot := "Haryanto Subathon"
-	phone_number := "088821151212"
+	nama_ot := "Bimbim Metal"
+	phone_number := "081342535636"
 	anak := model.Mahasiswa{
-		Nama:         "Rio Riyanto",
-		NPM:          1214013,
-		Phone_number: "083821132343",
+		Nama:         	"Mamas Racing",
+		NPM:          	1214090,
+		Jekel: 			"Perempuan",	
+		Phone_number: 	"08382098789",
 	}
 	hasil := module.InsertOrangTua(module.MongoConn, "orangtua", nama_ot, phone_number, anak)
 	fmt.Println(hasil)
 }
 
 func TestInsertDosenWali(t *testing.T) {
-	nama_dosen := "Munaroh Maija"
-	alamat := "jalan Macan"
-	phone_number := "08382114428"
-	email := "munaroh24@gmail.com"
+	nama_dosen := "teteh Hardcore"
+	alamat := "jalan tiktok"
+	phone_number := "08386346775"
+	email := "tetehaja12@gmail.com"
 	hasil := module.InsertDosenWali(module.MongoConn, "dosenwali", nama_dosen, alamat, phone_number, email)
 	fmt.Println(hasil)
 }
 
 func TestInsertTema(t *testing.T) {
-	nama_tema := "Etika Manajemen"
+	nama_tema := "Bahasa Jerman"
 	hasil := module.InsertTema(module.MongoConn, "tema", nama_tema)
 	fmt.Println(hasil)
 }
 func TestInsertMonitoring(t *testing.T) {
 	orang_tua := model.OrangTua{
-		Nama_OT:      "Haryanto Subathon",
-		Phone_number: "088821151212",
+		Nama_OT:      "Bimbim Metal",
+		Phone_number: "081342535636",
 		Anak: model.Mahasiswa{
-			Nama:         "Rio Riyanto",
-			NPM:          1214015,
-			Jekel: 		"laki-laki",
-			Phone_number: "083821132343",
+			Nama:         	"Mamas Racing",
+			NPM:          	1214015,
+			Jekel: 			"laki-laki",
+			Phone_number: 	"083821132343",
 		},
 	}
 	tema := model.Tema{
-		Nama_Tema: "Etika Manajemen",
+		Nama_Tema: "Bahasa Jerman",
 	}
 	dosen := model.DosenWali{
-		Nama_Dosen:   "Munaroh Maija",
-		Alamat:       "jalan Macan",
-		Phone_number: "08382114428",
-		Email:        "munaroh24@gmail.com",
+		Nama_Dosen:   "teteh Hardcore",
+		Alamat:       "jalan tiktok",
+		Phone_number: "08386346775",
+		Email:        "tetehaja12@gmail.com",
 	}
-	tanggal := "10-12-2000"
-	hari := "Minggu"
+	tanggal := "17-11-2025"
+	hari := "Senin"
 	insertedID, err := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
 	if err != nil {
 		t.Errorf("Error inserting data: %v", err)
@@ -103,31 +104,31 @@ func TestInsertMonitoring(t *testing.T) {
 } */
 
 func TestGetMahasiswaFromNpm(t *testing.T) {
-	npm := 1214013
+	npm := 1214090
 	data := module.GetMahasiswaFromNpm(module.MongoConn, "mahasiswa", npm)
 	fmt.Println(data)
 }
 
 func TestGetOrangTuaFromNamaMahasiswa(t *testing.T) {
-	nama := "Rio Riyanto"
+	nama := "Mamas Racing"
 	data := module.GetOrangTuaFromNamaMahasiswa(module.MongoConn, "orangtua", nama)
 	fmt.Println(data)
 }
 
 func TestGetDosenWaliFromNamaDosen(t *testing.T) {
-	nama_dosen := "Munaroh Maija"
+	nama_dosen := "teteh Hardcore"
 	data := module.GetDosenWaliFromNamaDosen(module.MongoConn, "dosenwali", nama_dosen)
 	fmt.Println(data)
 }
 
 func TestGetTemaFromNamaTema(t *testing.T) {
-	nama_tema := "Front End"
+	nama_tema := "Bahasa Jerman"
 	data := module.GetTemaFromNamaTema(module.MongoConn, "tema", nama_tema)
 	fmt.Println(data)
 }
 
 func TestGetMonitoringFromNamaMahasiswa(t *testing.T) {
-	nama := "Rio Riyanto"
+	nama := "Mamas Racing"
 	data := module.GetMonitoringFromNamaMahasiswa(module.MongoConn, "monitoring", nama)
 	fmt.Println(data)
 }
