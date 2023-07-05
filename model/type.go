@@ -36,7 +36,7 @@ type Monitoring struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	OrangTua OrangTua           `bson:"ortu,omitempty" json:"ortu,omitempty"`
 	Tema     Tema               `bson:"tema,omitempty" json:"tema,omitempty"`
-	Dosen    DosenWali          `bson:"Dosen,omitempty" json:"Dosen,omitempty"`
+	Dosen    DosenWali          `bson:"dosen,omitempty" json:"dosen,omitempty"`
 	Tanggal  string             `bson:"tanggal,omitempty" json:"tanggal,omitempty"`
 	Hari     string             `bson:"hari,omitempty" json:"hari,omitempty"`
 }
