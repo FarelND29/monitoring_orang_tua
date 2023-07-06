@@ -45,36 +45,8 @@ func TestInsertTema(t *testing.T) {
 	hasil := module.InsertTema(module.MongoConn, "tema", nama_tema)
 	fmt.Println(hasil)
 }
-func TestInsertMonitoring(t *testing.T) {
-	orang_tua := model.OrangTua{
-		Nama_OT:      "Stephen Sabun",
-		Phone_number: "081342565098",
-		Anak: model.Mahasiswa{
-			Nama:         	"Fahri Fahrian",
-			NPM:          	1214011,
-			Jekel: 			"laki-laki",
-			Phone_number: 	"083823545542",
-		},
-	}
-	tema := model.Tema{
-		Nama_Tema: "Bahasa Spanyol",
-	}
-	dosen := model.DosenWali{
-		Nama_Dosen:   "Joji Yuda",
-		Alamat:       "jalan setia",
-		Phone_number: "08386347643",
-		Email:        "joji12@gmail.com",
-	}
-	tanggal := "20-11-2025"
-	hari := "Kamis"
-	insertedID, err := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
-	if err != nil {
-		t.Errorf("Error inserting data: %v", err)
-	}
-	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
-}
 
-/* func TestInsertMonitoring(t *testing.T) {
+/*  func TestInsertMonitoring(t *testing.T) {
 	var orang_tua = model.OrangTua{
 			Nama_OT:      		"Haryanto Subathon",
 			Phone_number: 		"088821151212",
@@ -103,6 +75,35 @@ func TestInsertMonitoring(t *testing.T) {
 	}
 	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
 } */
+
+func TestInsertMonitoring(t *testing.T) {
+	orang_tua := model.OrangTua{
+		Nama_OT:      "irfan Sabun",
+		Phone_number: "081342565098",
+		Anak: model.Mahasiswa{
+			Nama:         	"Fahri Fahrian",
+			NPM:          	1214011,
+			Jekel: 			"laki-laki",
+			Phone_number: 	"083823545542",
+		},
+	}
+	tema := model.Tema{
+		Nama_Tema: "Bahasa Spanyol",
+	}
+	dosen := model.DosenWali{
+		Nama_Dosen:   "Joji Yuda",
+		Alamat:       "jalan setia",
+		Phone_number: "08386347643",
+		Email:        "joji12@gmail.com",
+	}
+	tanggal := "20-12-2025"
+	hari := "sabtu"
+	insertedID, err := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
+	if err != nil {
+		t.Errorf("Error inserting data: %v", err)
+	}
+	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
+}
 
 func TestGetMahasiswaFromID(t *testing.T) {
 	id := "64a4e2e694cb7dd7f0d0f9f5"
