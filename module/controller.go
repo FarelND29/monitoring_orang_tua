@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"errors"
+
 	"github.com/FarelND29/monitoring_orang_tua/model"
 	"github.com/aiteung/atdb"
 	"go.mongodb.org/mongo-driver/bson"
@@ -95,55 +97,113 @@ func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, 
 	return insertedID, nil
 }
 
+// UPDATE MONITORING ORANG TUA
 
-func GetMahasiswaFromNpm(db *mongo.Database, col string, npm int) (mhs model.Mahasiswa) {
-	mahasiswa := db.Collection(col)
-	filter := bson.M{"npm": npm}
-	err := mahasiswa.FindOne(context.TODO(), filter).Decode(&mhs)
-	if err != nil {
-		fmt.Printf("GetMahasiswaFromNpm: %v\n", err)
+func UpdateMonitoring(db *mongo.Database, col string,  id primitive.ObjectID, orang_tua model.OrangTua, tema model.Tema, dosen model.DosenWali, tanggal string, hari string) (err error) {
+	filter := bson.M{"_id": id}
+	update := bson.M{
+		"$set": bson.M{
+		"ortu":    		orang_tua,
+		"tema":     	tema,
+		"dosen":     	dosen,
+		"tanggal": 		tanggal,
+		"hari":     	hari,
+		},
 	}
-	return mhs
+	result, err := db.Collection(col).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		fmt.Printf("UpdateMonitoring: %v\n", err)
+		return
+	}
+	if result.ModifiedCount == 0 {
+		err = errors.New("No data has been changed with the specified ID")
+		return
+	}
+	return nil
 }
 
-func GetOrangTuaFromNamaMahasiswa(db *mongo.Database, col string, nama string) (ortu model.OrangTua) {
-	orang_tua := db.Collection(col)
-	filter := bson.M{"anak.nama": nama}
-	err := orang_tua.FindOne(context.TODO(), filter).Decode(&ortu)
+// DELETE MONITORING ORANG TUA
+
+func DeleteMonitoringByID(_id primitive.ObjectID, db *mongo.Database, col string) error {
+	orangtua := db.Collection(col)
+	filter := bson.M{"_id": _id}
+
+	result, err := orangtua.DeleteOne(context.TODO(), filter)
 	if err != nil {
-		fmt.Printf("GetOrangTuaFromNamaMahasiswa: %v\n", err)
+		return fmt.Errorf("error deleting data for ID %s: %s", _id, err.Error())
 	}
-	return ortu
+
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("data with ID %s not found", _id)
+	}
+
+	return nil
 }
 
-func GetDosenWaliFromNamaDosen(db *mongo.Database, col string, nama_dosen string) (doswal model.DosenWali) {
-	dosen_wali := db.Collection(col)
-	filter := bson.M{"nama_dosen": nama_dosen}
-	err := dosen_wali.FindOne(context.TODO(), filter).Decode(&doswal)
+func GetMahasiswaFromID(_id primitive.ObjectID, db *mongo.Database, col string) (mhs model.Monitoring, errs error) {
+	siswa := db.Collection(col)
+	filter := bson.M{"_id": _id}
+	err := siswa.FindOne(context.TODO(), filter).Decode(&mhs)
 	if err != nil {
-		fmt.Printf("GetDosenWaliFromNamaDosen: %v\n", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return mhs, fmt.Errorf("no data found for ID %s", _id)
+		}
+		return mhs, fmt.Errorf("error retrieving data for ID %s: %s", _id, err.Error())
 	}
-	return doswal
+	return mhs, nil
 }
 
-func GetTemaFromNamaTema(db *mongo.Database, col string, nama_tema string) (tm model.Tema) {
-	tema := db.Collection(col)
-	filter := bson.M{"nama_tema": nama_tema}
-	err := tema.FindOne(context.TODO(), filter).Decode(&tm)
+func GetOrangTuaFromID(_id primitive.ObjectID, db *mongo.Database, col string) (ot model.Monitoring, errs error) {
+	ortu:= db.Collection(col)
+	filter := bson.M{"_id": _id}
+	err := ortu.FindOne(context.TODO(), filter).Decode(&ot)
 	if err != nil {
-		fmt.Printf("GetTemaFromNamaTema: %v\n", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ot, fmt.Errorf("no data found for ID %s", _id)
+		}
+		return ot, fmt.Errorf("error retrieving data for ID %s: %s", _id, err.Error())
 	}
-	return tm
+	return ot, nil
 }
 
-func GetMonitoringFromNamaMahasiswa(db *mongo.Database, col string, nama string) (mntr model.Monitoring) {
-	monitoring := db.Collection(col)
-	filter := bson.M{"ortu.anak.nama": nama}
-	err := monitoring.FindOne(context.TODO(), filter).Decode(&mntr)
+func GetDosenWaliFromID(_id primitive.ObjectID, db *mongo.Database, col string) (dos model.Monitoring, errs error) {
+	dosen := db.Collection(col)
+	filter := bson.M{"_id": _id}
+	err := dosen.FindOne(context.TODO(), filter).Decode(&dos)
 	if err != nil {
-		fmt.Printf("GetMonitoringFromNamaMahasiswa: %v\n", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return dos, fmt.Errorf("no data found for ID %s", _id)
+		}
+		return dos, fmt.Errorf("error retrieving data for ID %s: %s", _id, err.Error())
 	}
-	return mntr
+	return dos, nil
+}
+
+func GetTemaFromID(_id primitive.ObjectID, db *mongo.Database, col string) (mkl model.Monitoring, errs error) {
+	matkul := db.Collection(col)
+	filter := bson.M{"_id": _id}
+	err := matkul.FindOne(context.TODO(), filter).Decode(&mkl)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return mkl, fmt.Errorf("no data found for ID %s", _id)
+		}
+		return mkl, fmt.Errorf("error retrieving data for ID %s: %s", _id, err.Error())
+	}
+	return mkl, nil
+}
+
+//  FUNCTION GET MONITORING FROM ID 
+func GetMonitoringFromID(_id primitive.ObjectID, db *mongo.Database, col string) (adm model.Monitoring, errs error) {
+	admin := db.Collection(col)
+	filter := bson.M{"_id": _id}
+	err := admin.FindOne(context.TODO(), filter).Decode(&adm)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return adm, fmt.Errorf("no data found for ID %s", _id)
+		}
+		return adm, fmt.Errorf("error retrieving data for ID %s: %s", _id, err.Error())
+	}
+	return adm, nil
 }
 
 func GetAllMonitoring(db *mongo.Database, col string) (data []model.Monitoring) {
