@@ -64,7 +64,7 @@ func InsertTema(db *mongo.Database, col string, nama_tema string) (InsertedID in
 }
 
 /* func InsertMonitoring(db *mongo.Database, col string, orang_tua model.OrangTua, tema model.Tema, dosen model.DosenWali, tanggal string, hari string) (insertedID primitive.ObjectID, err error) {
-	presensi := bson.M{
+	mmonitoring := bson.M{
 	monitoring.OrangTua = orang_tua
 	monitoring.Tema = tema
 	monitoring.Dosen = dosen
