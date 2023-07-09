@@ -14,21 +14,27 @@ func TestInsertMahasiswa(t *testing.T) {
 	npm := 1214011
 	jenis_kelamin := "laki laki"
 	phone_number := "083823545542"
-	hasil := module.InsertMahasiswa(module.MongoConn, "mahasiswa", nama, npm, jenis_kelamin, phone_number)
-	fmt.Println(hasil)
+	insertedID, err := module.InsertMahasiswa(module.MongoConn, "mahasiswa", nama, npm, jenis_kelamin, phone_number)
+	if err != nil {
+		t.Errorf("Error inserting data: %v", err)
+	}
+	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
 }
 
 func TestInsertOrangTua(t *testing.T) {
 	nama_ot := "Stephen Sabun"
 	phone_number := "081342565098"
 	anak := model.Mahasiswa{
-		Nama:         	"Fahri Fahrian",
-		NPM:          	1214011,
-		Jekel: 			"laki laki",	
-		Phone_number: 	"083823545542",
+		Nama:         "Fahri Fahrian",
+		NPM:          1214011,
+		Jekel:        "laki laki",
+		Phone_number: "083823545542",
 	}
-	hasil := module.InsertOrangTua(module.MongoConn, "orangtua", nama_ot, phone_number, anak)
-	fmt.Println(hasil)
+	insertedID, err := module.InsertOrangTua(module.MongoConn, "orangtua", nama_ot, phone_number, anak)
+	if err != nil {
+		t.Errorf("Error inserting data: %v", err)
+	}
+	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
 }
 
 func TestInsertDosenWali(t *testing.T) {
@@ -36,55 +42,30 @@ func TestInsertDosenWali(t *testing.T) {
 	alamat := "jalan setia"
 	phone_number := "08386347643"
 	email := "joji12@gmail.com"
-	hasil := module.InsertDosenWali(module.MongoConn, "dosenwali", nama_dosen, alamat, phone_number, email)
-	fmt.Println(hasil)
-}
-
-func TestInsertTema(t *testing.T) {
-	nama_tema := "Bahasa Spanyol"
-	hasil := module.InsertTema(module.MongoConn, "tema", nama_tema)
-	fmt.Println(hasil)
-}
-
-/*  func TestInsertMonitoring(t *testing.T) {
-	var orang_tua = model.OrangTua{
-			Nama_OT:      		"Haryanto Subathon",
-			Phone_number: 		"088821151212",
-			Anak: model.Mahasiswa{
-				Nama:         	"Rio Riyanto",
-				NPM:          	1214015,
-				Jekel: 			"laki-laki",	
-				Phone_number: 	"083821132343",
-			},
-	tema := model.Tema{
-			Nama_Tema: "Etika Manajemen",
-			}
-	var dosen 	= model.DosenWali{
-				Nama_Dosen:   "Munaroh Maija",
-				Alamat:       "jalan Macan",
-				Phone_number: "08382114428",
-				Email:        "munaroh24@gmail.com",
-			}
-
-			tanggal := "10-12-2000"
-			hari := "Minggu"
-	}
-	insertedID, err := module.InsertMonitoring(module.MongoConn, "monitoring", orang_tua, tema, dosen, tanggal, hari)
+	insertedID, err := module.InsertDosenWali(module.MongoConn, "dosenwali", nama_dosen, alamat, phone_number, email)
 	if err != nil {
 		t.Errorf("Error inserting data: %v", err)
 	}
 	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
-} */
+}
+func TestInsertTema(t *testing.T) {
+	nama_tema := "Bahasa Spanyol"
+	insertedID, err := module.InsertTema(module.MongoConn, "tema", nama_tema)
+	if err != nil {
+		t.Errorf("Error inserting data: %v", err)
+	}
+	fmt.Printf("Data berhasil disimpan dengan id %s", insertedID.Hex())
+}
 
 func TestInsertMonitoring(t *testing.T) {
 	orang_tua := model.OrangTua{
 		Nama_OT:      "irfan Sabun",
 		Phone_number: "081342565098",
 		Anak: model.Mahasiswa{
-			Nama:         	"Fahri Fahrian",
-			NPM:          	1214011,
-			Jekel: 			"laki-laki",
-			Phone_number: 	"083823545542",
+			Nama:         "Fahri Fahrian",
+			NPM:          1214011,
+			Jekel:        "laki-laki",
+			Phone_number: "083823545542",
 		},
 	}
 	tema := model.Tema{
@@ -195,7 +176,83 @@ func TestGetAllTema(t *testing.T) {
 	fmt.Println(data)
 }
 
-//Delete Monitoring
+//Delete Data
+
+func TestDeleteMahasiswaByID(t *testing.T) {
+	id := "64a4e2e694cb7dd7f0d0f9f5" // ID data yang ingin dihapus
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		t.Fatalf("error converting id to ObjectID: %v", err)
+	}
+
+	err = module.DeleteMahasiswaByID(objectID, module.MongoConn, "mahasiswa")
+	if err != nil {
+		t.Fatalf("error calling DeleteMahasiswaByID: %v", err)
+	}
+
+	// Verifikasi bahwa data telah dihapus dengan melakukan pengecekan menggunakan GetMahasiswaFromID
+	_, err = module.GetMahasiswaFromID(objectID, module.MongoConn, "mahasiswa")
+	if err == nil {
+		t.Fatalf("expected data to be deleted, but it still exists")
+	}
+}
+
+func TestDeleteOrangTuaByID(t *testing.T) {
+	id := "64a532c90fbad6a10b05cb18" // ID data yang ingin dihapus
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		t.Fatalf("error converting id to ObjectID: %v", err)
+	}
+
+	err = module.DeleteOrangTuaByID(objectID, module.MongoConn, "orangtua")
+	if err != nil {
+		t.Fatalf("error calling DeleteOrangTuaByID: %v", err)
+	}
+
+	// Verifikasi bahwa data telah dihapus dengan melakukan pengecekan menggunakan GetOrangTuaFromID
+	_, err = module.GetOrangTuaFromID(objectID, module.MongoConn, "orangtua")
+	if err == nil {
+		t.Fatalf("expected data to be deleted, but it still exists")
+	}
+}
+
+func TestDeleteDosenWaliByID(t *testing.T) {
+	id := "64a4e2e994cb7dd7f0d0f9f7" // ID data yang ingin dihapus
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		t.Fatalf("error converting id to ObjectID: %v", err)
+	}
+
+	err = module.DeleteDosenWaliByID(objectID, module.MongoConn, "dosenwali")
+	if err != nil {
+		t.Fatalf("error calling DeleteDosenWaliByID: %v", err)
+	}
+
+	// Verifikasi bahwa data telah dihapus dengan melakukan pengecekan menggunakan GetDosenWaliFromID
+	_, err = module.GetDosenWaliFromID(objectID, module.MongoConn, "dosenwali")
+	if err == nil {
+		t.Fatalf("expected data to be deleted, but it still exists")
+	}
+}
+
+func TestDeleteTemaByID(t *testing.T) {
+	id := "64a4e2ea94cb7dd7f0d0f9f8" // ID data yang ingin dihapus
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		t.Fatalf("error converting id to ObjectID: %v", err)
+	}
+
+	err = module.DeleteTemaByID(objectID, module.MongoConn, "tema")
+	if err != nil {
+		t.Fatalf("error calling DeleteTemaByID: %v", err)
+	}
+
+	// Verifikasi bahwa data telah dihapus dengan melakukan pengecekan menggunakan GetTemaFromID
+	_, err = module.GetTemaFromID(objectID, module.MongoConn, "tema")
+	if err == nil {
+		t.Fatalf("expected data to be deleted, but it still exists")
+	}
+}
 
 func TestDeleteMonitoringByID(t *testing.T) {
 	id := "64a635e4b5a0cc779e9a01ae" // ID data yang ingin dihapus
