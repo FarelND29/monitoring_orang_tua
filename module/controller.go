@@ -2,8 +2,10 @@ package module
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 
 	"errors"
 
@@ -12,6 +14,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/argon2"
+	"github.com/badoux/checkmail"
 )
 
 var MongoString string = os.Getenv("MONGOSTRING")
@@ -453,4 +457,82 @@ func GetAllTema(db *mongo.Database, col string) (data []model.Tema) {
 		fmt.Println(err)
 	}
 	return data
+}
+
+func InsertOneDoc2(db *mongo.Database, collection string, doc interface{}) (insertedID interface{}) {
+	insertResult, err := db.Collection(collection).InsertOne(context.TODO(), doc)
+	if err != nil {
+		fmt.Printf("InsertOneDoc: %v\n", err)
+	}
+	return insertResult.InsertedID
+}
+
+func InsertUser(db *mongo.Database, col string, doc interface{}) (insertedID primitive.ObjectID, err error) {
+	result, err := db.Collection(col).InsertOne(context.Background(), doc)
+	if err != nil {
+		// fmt.Printf("InsertOneDoc: %v\n", err)
+		return insertedID, fmt.Errorf("kesalahan server")
+	}
+	insertedID = result.InsertedID.(primitive.ObjectID)
+	return insertedID, nil
+}
+
+func GetUserFromEmail(email string, db *mongo.Database, col string) (result model.User, err error) {
+	collection := db.Collection(col)
+	filter := bson.M{"email": email}
+	err = collection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return result, fmt.Errorf("email tidak ditemukan")
+		}
+		return result, fmt.Errorf("kesalahan server")
+	}
+	return result, nil
+}
+
+func SignUp(db *mongo.Database, col string, insertedDoc2 model.User) (insertedID primitive.ObjectID, err error) {
+	if insertedDoc2.Fullname == "" || insertedDoc2.Email == "" || insertedDoc2.Password == "" || insertedDoc2.Confirmpassword == "" {
+		return insertedID, fmt.Errorf("Data tidak boleh kosong")
+	}
+	if err = checkmail.ValidateFormat(insertedDoc2.Email); err != nil {
+		return insertedID, fmt.Errorf("email tidak valid")
+	}
+	if !strings.Contains(insertedDoc2.Email, "@gmail.com") {
+		return insertedID, fmt.Errorf("email harus menggunakan domain @gmail.com")
+	}
+	userExists, _ := GetUserFromEmail(insertedDoc2.Email, db, col)
+	if insertedDoc2.Email == userExists.Email {
+		return insertedID, fmt.Errorf("email sudah terdaftar")
+	}
+	if insertedDoc2.Confirmpassword != insertedDoc2.Password {
+		return insertedID, fmt.Errorf("konfirmasi password salah")
+	}
+	if strings.Contains(insertedDoc2.Password, " ") {
+		return insertedID, fmt.Errorf("password tidak boleh mengandung spasi")
+	}
+	if len(insertedDoc2.Password) < 8 {
+		return insertedID, fmt.Errorf("password terlalu pendek")
+	}
+	hashedPassword := argon2.IDKey([]byte(insertedDoc2.Password), nil, 1, 64*1024, 4, 32)
+	insertedDoc2.Password = hex.EncodeToString(hashedPassword)
+	insertedDoc2.Confirmpassword = ""
+	return InsertUser(db, col, insertedDoc2)
+}
+
+func LogIn(db *mongo.Database, col string, insertedDoc2 model.User) (userName string, err error) {
+	if insertedDoc2.Email == "" || insertedDoc2.Password == "" {
+		return userName, fmt.Errorf("mohon untuk melengkapi data")
+	}
+	if err = checkmail.ValidateFormat(insertedDoc2.Email); err != nil {
+		return userName, fmt.Errorf("email tidak valid")
+	}
+	existsDoc, err := GetUserFromEmail(insertedDoc2.Email, db, col)
+	if err != nil {
+		return
+	}
+	hash := argon2.IDKey([]byte(insertedDoc2.Password), nil, 1, 64*1024, 4, 32)
+	if hex.EncodeToString(hash) != existsDoc.Password {
+		return userName, fmt.Errorf("password salah")
+	}
+	return existsDoc.Fullname, nil
 }
